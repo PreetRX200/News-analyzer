@@ -39,6 +39,11 @@
                 8px 8px 15px var(--shadow-color),
                 -8px -8px 15px var(--highlight-color);
             transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .category-card * {
+            pointer-events: none;
         }
 
         .category-card:hover {
@@ -243,47 +248,46 @@
 
         <!-- Categories Grid -->
         <div id="categories-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('breaking')">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-bolt text-yellow-500 text-2xl mr-3 icon-shadow"></i>
-                    <h2 class="text-xl font-semibold text-shadow">Breaking News</h2>
-                </div>
-                <p class="opacity-75 text-shadow">Latest breaking news and updates</p>
-            </div>
-
-            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('technology')">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-microchip text-blue-500 text-2xl mr-3 icon-shadow"></i>
-                    <h2 class="text-xl font-semibold text-shadow">Technology</h2>
-                </div>
-                <p class="opacity-75 text-shadow">Latest tech trends and innovations</p>
-            </div>
-
-            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('business')">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-chart-line text-green-500 text-2xl mr-3 icon-shadow"></i>
-                    <h2 class="text-xl font-semibold text-shadow">Business</h2>
-                </div>
-                <p class="opacity-75 text-shadow">Market trends and financial news</p>
-            </div>
-
-            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('science')">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-flask text-indigo-500 text-2xl mr-3 icon-shadow"></i>
-                    <h2 class="text-xl font-semibold text-shadow">Science</h2>
-                </div>
-                <p class="opacity-75 text-shadow">Scientific discoveries and research</p>
-            </div>
-
-            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('health')">
-                <div class="flex items-center mb-4">
-                    <i class="fas fa-heartbeat text-red-500 text-2xl mr-3 icon-shadow"></i>
-                    <h2 class="text-xl font-semibold text-shadow">Health</h2>
-                </div>
-                <p class="opacity-75 text-shadow">Medical breakthroughs and health news</p>
-            </div>
+    <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('breaking')">
+        <div class="flex items-center mb-4" style="pointer-events: none;">
+            <i class="fas fa-bolt text-yellow-500 text-2xl mr-3 icon-shadow" style="pointer-events: none;"></i>
+            <h2 class="text-xl font-semibold text-shadow" style="pointer-events: none;">Breaking News</h2>
         </div>
+        <p class="opacity-75 text-shadow" style="pointer-events: none;">Latest breaking news and updates</p>
+    </div>
 
+    <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('technology')">
+        <div class="flex items-center mb-4" style="pointer-events: none;">
+            <i class="fas fa-microchip text-blue-500 text-2xl mr-3 icon-shadow" style="pointer-events: none;"></i>
+            <h2 class="text-xl font-semibold text-shadow" style="pointer-events: none;">Technology</h2>
+        </div>
+        <p class="opacity-75 text-shadow" style="pointer-events: none;">Latest tech trends and innovations</p>
+    </div>
+
+    <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('business')">
+        <div class="flex items-center mb-4" style="pointer-events: none;">
+            <i class="fas fa-chart-line text-green-500 text-2xl mr-3 icon-shadow" style="pointer-events: none;"></i>
+            <h2 class="text-xl font-semibold text-shadow" style="pointer-events: none;">Business</h2>
+        </div>
+        <p class="opacity-75 text-shadow" style="pointer-events: none;">Market trends and financial news</p>
+    </div>
+
+    <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('science')">
+        <div class="flex items-center mb-4" style="pointer-events: none;">
+            <i class="fas fa-flask text-indigo-500 text-2xl mr-3 icon-shadow" style="pointer-events: none;"></i>
+            <h2 class="text-xl font-semibold text-shadow" style="pointer-events: none;">Science</h2>
+        </div>
+        <p class="opacity-75 text-shadow" style="pointer-events: none;">Scientific discoveries and research</p>
+    </div>
+
+    <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('health')">
+        <div class="flex items-center mb-4" style="pointer-events: none;">
+            <i class="fas fa-heartbeat text-red-500 text-2xl mr-3 icon-shadow" style="pointer-events: none;"></i>
+            <h2 class="text-xl font-semibold text-shadow" style="pointer-events: none;">Health</h2>
+        </div>
+        <p class="opacity-75 text-shadow" style="pointer-events: none;">Medical breakthroughs and health news</p>
+    </div>
+</div>
         <!-- News Container -->
         <div id="news-container" class="hidden space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
