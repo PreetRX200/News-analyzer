@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Sentiment Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #e0e5ec;
+            --secondary-color: #c8ccd3;
+            --text-color: #2d3748;
+            --accent-color: #4a90e2;
+            --shadow-color: #a3b1c6;
+            --highlight-color: #ffffff;
+        }
+
+        body {
+            background: var(--primary-color);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            box-shadow: 
+                8px 8px 15px var(--shadow-color),
+                -8px -8px 15px var(--highlight-color);
+            border: none;
+        }
+
+        .category-card {
+            background: var(--primary-color);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 
+                8px 8px 15px var(--shadow-color),
+                -8px -8px 15px var(--highlight-color);
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                12px 12px 20px var(--shadow-color),
+                -12px -12px 20px var(--highlight-color);
+        }
+
+        .generate-btn {
+            background: var(--primary-color);
+            color: var(--accent-color);
+            box-shadow: 
+                8px 8px 15px var(--shadow-color),
+                -8px -8px 15px var(--highlight-color);
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                12px 12px 20px var(--shadow-color),
+                -12px -12px 20px var(--highlight-color);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0px);
+            box-shadow: 
+                inset 4px 4px 8px var(--shadow-color),
+                inset -4px -4px 8px var(--highlight-color);
+        }
+
+        .news-card {
+            background: var(--primary-color);
+            border: none;
+            border-radius: 15px;
+            box-shadow: 
+                8px 8px 15px var(--shadow-color),
+                -8px -8px 15px var(--highlight-color);
+            transition: all 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                12px 12px 20px var(--shadow-color),
+                -12px -12px 20px var(--highlight-color);
+        }
+
+        .sentiment-positive {
+            border-left: none;
+            background: var(--primary-color);
+            position: relative;
+        }
+
+        .sentiment-positive::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #10b981;
+            border-radius: 2px;
+        }
+
+        .sentiment-negative {
+            border-left: none;
+            background: var(--primary-color);
+            position: relative;
+        }
+
+        .sentiment-negative::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #ef4444;
+            border-radius: 2px;
+        }
+
+        .sentiment-neutral {
+            border-left: none;
+            background: var(--primary-color);
+            position: relative;
+        }
+
+        .sentiment-neutral::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--primary-color);
+            border-radius: 4px;
+            box-shadow: 
+                inset 2px 2px 5px var(--shadow-color),
+                inset -2px -2px 5px var(--highlight-color);
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .bias-progress {
+            background: linear-gradient(45deg, #f59e0b, #fbbf24);
+        }
+
+        .manipulative-progress {
+            background: linear-gradient(45deg, #ef4444, #f87171);
+        }
+
+        #reader-suggestions {
+            background: var(--primary-color);
+            box-shadow: 
+                8px 8px 15px var(--shadow-color),
+                -8px -8px 15px var(--highlight-color);
+            border-radius: 15px;
+            color: var(--text-color);
+        }
+
+        #reader-suggestions h3 {
+            color: var(--accent-color);
+        }
+
+        .suggestions-content {
+            color: var(--text-color);
+        }
+
+        .loading {
+    animation: pulse 2s infinite;
+}
+.loading i.fas.fa-spinner {
+    transition: color 0.3s;
+}
+#loading .text-shadow {
+    text-shadow: 2px 2px 8px var(--shadow-color), -2px -2px 8px var(--highlight-color);
+}
+#loading .text-xl {
+    font-size: 1.25rem;
+}
+#loading .text-sm {
+    font-size: 1rem;
+}
+#loading .icon-shadow {
+    filter: drop-shadow(2px 2px 8px var(--shadow-color));
+}
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        /* Additional neumorphic styles for text and icons */
+        .text-shadow {
+            text-shadow: 2px 2px 4px var(--shadow-color);
+        }
+
+        .icon-shadow {
+            filter: drop-shadow(2px 2px 4px var(--shadow-color));
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar text-white py-4 px-6 fixed w-full z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-shadow">News Sentiment Analyzer</h1>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm opacity-75 text-shadow">Powered by Groq AI</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-24">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold mb-4 text-shadow">AI-Powered News Analysis</h2>
+            <p class="text-xl opacity-75 mb-8 text-shadow">Get instant sentiment analysis of the latest news across different categories</p>
+            <button onclick="generateNews()" class="generate-btn text-white px-8 py-3 rounded-lg text-lg font-semibold">
+                <i class="fas fa-bolt mr-2 icon-shadow"></i>Generate News Analysis
+            </button>
+        </div>
+
+        <!-- Categories Grid -->
+        <div id="categories-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('breaking')">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-bolt text-yellow-500 text-2xl mr-3 icon-shadow"></i>
+                    <h2 class="text-xl font-semibold text-shadow">Breaking News</h2>
+                </div>
+                <p class="opacity-75 text-shadow">Latest breaking news and updates</p>
+            </div>
+
+            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('technology')">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-microchip text-blue-500 text-2xl mr-3 icon-shadow"></i>
+                    <h2 class="text-xl font-semibold text-shadow">Technology</h2>
+                </div>
+                <p class="opacity-75 text-shadow">Latest tech trends and innovations</p>
+            </div>
+
+            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('business')">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-chart-line text-green-500 text-2xl mr-3 icon-shadow"></i>
+                    <h2 class="text-xl font-semibold text-shadow">Business</h2>
+                </div>
+                <p class="opacity-75 text-shadow">Market trends and financial news</p>
+            </div>
+
+            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('science')">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-flask text-indigo-500 text-2xl mr-3 icon-shadow"></i>
+                    <h2 class="text-xl font-semibold text-shadow">Science</h2>
+                </div>
+                <p class="opacity-75 text-shadow">Scientific discoveries and research</p>
+            </div>
+
+            <div class="category-card rounded-lg p-6 cursor-pointer" onclick="loadCategory('health')">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-heartbeat text-red-500 text-2xl mr-3 icon-shadow"></i>
+                    <h2 class="text-xl font-semibold text-shadow">Health</h2>
+                </div>
+                <p class="opacity-75 text-shadow">Medical breakthroughs and health news</p>
+            </div>
+        </div>
+
+        <!-- News Container -->
+        <div id="news-container" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+                <div>
+                    <h2 id="category-title" class="text-2xl font-bold mb-2 text-shadow"></h2>
+                    <div id="category-stats" class="text-sm opacity-75 text-shadow"></div>
+                </div>
+                <button onclick="goBack()" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-2 icon-shadow"></i>Back to Categories
+                </button>
+            </div>
+            
+            <!-- Sections Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Positive News Section -->
+                <div id="positive-news" class="space-y-4">
+                    <h3 class="text-xl font-semibold text-green-400 text-shadow">
+                        <i class="fas fa-plus-circle mr-2 icon-shadow"></i>Positive News
+                    </h3>
+                    <div class="positive-content space-y-4"></div>
+                </div>
+
+                <!-- Neutral News Section -->
+                <div id="neutral-news" class="space-y-4">
+                    <h3 class="text-xl font-semibold text-blue-400 text-shadow">
+                        <i class="fas fa-circle-minus mr-2 icon-shadow"></i>Neutral News
+                    </h3>
+                    <div class="neutral-content space-y-4"></div>
+                </div>
+
+                <!-- Negative News Section -->
+                <div id="negative-news" class="space-y-4">
+                    <h3 class="text-xl font-semibold text-red-400 text-shadow">
+                        <i class="fas fa-minus-circle mr-2 icon-shadow"></i>Negative News
+                    </h3>
+                    <div class="negative-content space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Reader Suggestions -->
+            <div id="reader-suggestions" class="bg-blue-900/20 p-6 rounded-lg mt-8">
+                <h3 class="text-xl font-semibold text-blue-400 mb-4 text-shadow">
+                    <i class="fas fa-lightbulb mr-2 icon-shadow"></i>Reader Suggestions
+                </h3>
+                <div class="suggestions-content text-blue-100"></div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div style="background: var(--primary-color); box-shadow: 8px 8px 20px var(--shadow-color), -8px -8px 20px var(--highlight-color); border-radius: 18px; padding: 2.5rem 2rem; min-width: 320px;" class="text-center">
+            <div class="loading text-xl mb-4 flex flex-col items-center">
+                <span style="display: inline-block;">
+                  <i class="fas fa-spinner fa-spin" style="color: var(--accent-color); font-size: 2.5rem; filter: drop-shadow(2px 2px 8px var(--shadow-color)); margin-bottom: 0.5rem;"></i>
+                </span>
+                <span id="loading-text" class="text-shadow" style="color: var(--accent-color); font-weight: 600; font-size: 1.3rem;">Analyzing news...</span>
+            </div>
+            <p class="text-sm text-shadow" style="color: var(--text-color); opacity: 0.7;">This may take a few moments</p>
+        </div>
+    </div>
+</div>
+    </div>
+
+    <!-- Chatbot Widget Embed -->
+    <iframe src="chat.html" id="chatbot-iframe" title="AI Chatbot" style="position:fixed;bottom:32px;right:32px;width:370px;height:520px;border:none;box-shadow:none;background:transparent;pointer-events:auto;z-index:9999;" allow="clipboard-write"></iframe>
+
+    <script>
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString();
+        }
+
+        function getBiasLevel(level) {
+            return `
+                <div class="progress-bar">
+                    <div class="progress-bar-fill bias-progress" style="width: ${(level / 10) * 100}%"></div>
+                </div>
+            `;
+        }
+
+        function getManipulativeLevel(level) {
+            return `
+                <div class="progress-bar">
+                    <div class="progress-bar-fill manipulative-progress" style="width: ${(level / 10) * 100}%"></div>
+                </div>
+            `;
+        }
+
+        async function loadCategory(category) {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loading-text').textContent = `Loading ${category} news...`;
+            
+            let retryCount = 0;
+            const maxRetries = 3;
+            
+            while (retryCount < maxRetries) {
+                try {
+                    const response = await fetch(`/.netlify/functions/news/${category}`);
+                    const data = await response.json();
+
+                    if (response.status === 202) {
+                        // Show loading message for in-progress states
+                        document.getElementById('loading-text').textContent = data.message || `Processing ${category} news...`;
+                        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+                        retryCount++;
+                        continue;
+                    }
+
+                    // Update category title and stats
+                    document.getElementById('category-title').textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' News';
+                    
+                    // Update stats with available information
+                    const stats = [];
+                    if (data.summary) {
+                        if (data.summary.total_articles) stats.push(`${data.summary.total_articles} articles analyzed`);
+                        if (data.summary.positive_count) stats.push(`${data.summary.positive_count} positive`);
+                        if (data.summary.neutral_count) stats.push(`${data.summary.neutral_count} neutral`);
+                        if (data.summary.negative_count) stats.push(`${data.summary.negative_count} negative`);
+                    }
+                    document.getElementById('category-stats').textContent = stats.join(' • ') || 'Analysis in progress';
+
+                    // Display articles that have been analyzed
+                    const positiveContent = document.querySelector('.positive-content');
+                    const neutralContent = document.querySelector('.neutral-content');
+                    const negativeContent = document.querySelector('.negative-content');
+                    
+                    positiveContent.innerHTML = data.articles && data.articles.positive ? 
+                        data.articles.positive.map(article => createArticleCard(article, 'positive')).join('') :
+                        '<div class="p-4 text-center">No positive articles available</div>';
+                    
+                    neutralContent.innerHTML = data.articles && data.articles.neutral ? 
+                        data.articles.neutral.map(article => createArticleCard(article, 'neutral')).join('') :
+                        '<div class="p-4 text-center">No neutral articles available</div>';
+                    
+                    negativeContent.innerHTML = data.articles && data.articles.negative ? 
+                        data.articles.negative.map(article => createArticleCard(article, 'negative')).join('') :
+                        '<div class="p-4 text-center">No negative articles available</div>';
+
+                    // Display suggestions if available
+                    const suggestionsContent = document.querySelector('.suggestions-content');
+                    if (data.reader_suggestions && data.reader_suggestions.length > 0) {
+                        suggestionsContent.innerHTML = data.reader_suggestions.map(suggestion => 
+                            `<div class="mb-2"><i class="fas fa-check-circle text-blue-400 mr-2 icon-shadow"></i>${suggestion}</div>`
+                        ).join('');
+                    } else {
+                        suggestionsContent.innerHTML = '<div class="p-4 text-center">Suggestions will appear here once analysis is complete</div>';
+                    }
+
+                    // Show news container and hide categories
+                    document.getElementById('categories-grid').classList.add('hidden');
+                    document.getElementById('news-container').classList.remove('hidden');
+                    document.getElementById('loading').classList.add('hidden');
+                    break;
+
+                } catch (error) {
+                    console.error('Error loading category:', error);
+                    retryCount++;
+                    
+                    if (retryCount === maxRetries) {
+                        document.getElementById('loading').classList.add('hidden');
+                        
+                        // Check for specific error pattern related to HTML response instead of JSON
+                        if (error.message && error.message.includes("Unexpected token '<'")) {
+                            // Try to fetch directly from the API endpoint instead of Netlify function
+                            try {
+                                const apiResponse = await fetch(`/api/articles/${category}`);
+                                const apiData = await apiResponse.json();
+                                
+                                // If successful, process the data
+                                if (apiResponse.ok) {
+                                    // Update category title and stats
+                                    document.getElementById('category-title').textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' News';
+                                    
+                                    // Update stats with available information
+                                    const stats = [];
+                                    if (apiData.summary) {
+                                        if (apiData.summary.total_articles) stats.push(`${apiData.summary.total_articles} articles analyzed`);
+                                        if (apiData.summary.positive_count) stats.push(`${apiData.summary.positive_count} positive`);
+                                        if (apiData.summary.neutral_count) stats.push(`${apiData.summary.neutral_count} neutral`);
+                                        if (apiData.summary.negative_count) stats.push(`${apiData.summary.negative_count} negative`);
+                                    }
+                                    document.getElementById('category-stats').textContent = stats.join(' • ') || 'Analysis in progress';
+
+                                    // Display articles that have been analyzed
+                                    const positiveContent = document.querySelector('.positive-content');
+                                    const neutralContent = document.querySelector('.neutral-content');
+                                    const negativeContent = document.querySelector('.negative-content');
+                                    
+                                    positiveContent.innerHTML = apiData.articles && apiData.articles.positive ? 
+                                        apiData.articles.positive.map(article => createArticleCard(article, 'positive')).join('') :
+                                        '<div class="p-4 text-center">No positive articles available</div>';
+                                    
+                                    neutralContent.innerHTML = apiData.articles && apiData.articles.neutral ? 
+                                        apiData.articles.neutral.map(article => createArticleCard(article, 'neutral')).join('') :
+                                        '<div class="p-4 text-center">No neutral articles available</div>';
+                                    
+                                    negativeContent.innerHTML = apiData.articles && apiData.articles.negative ? 
+                                        apiData.articles.negative.map(article => createArticleCard(article, 'negative')).join('') :
+                                        '<div class="p-4 text-center">No negative articles available</div>';
+
+                                    // Display suggestions if available
+                                    const suggestionsContent = document.querySelector('.suggestions-content');
+                                    if (apiData.reader_suggestions && apiData.reader_suggestions.length > 0) {
+                                        suggestionsContent.innerHTML = apiData.reader_suggestions.map(suggestion => 
+                                            `<div class="mb-2"><i class="fas fa-check-circle text-blue-400 mr-2 icon-shadow"></i>${suggestion}</div>`
+                                        ).join('');
+                                    } else {
+                                        suggestionsContent.innerHTML = '<div class="p-4 text-center">Suggestions will appear here once analysis is complete</div>';
+                                    }
+
+                                    // Show news container and hide categories
+                                    document.getElementById('categories-grid').classList.add('hidden');
+                                    document.getElementById('news-container').classList.remove('hidden');
+                                    document.getElementById('loading').classList.add('hidden');
+                                    return;
+                                }
+                            } catch (apiError) {
+                                console.error('Error fetching from direct API:', apiError);
+                                // Continue to the alert below if this also fails
+                            }
+                        }
+                        
+                        alert(`Error loading ${category} category: ${error.message || 'Please try again later.'}`);
+                        return;
+                    }
+                    
+                    // Wait before retrying
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+        }
+
+        function createArticleCard(article, type) {
+            if (!article || !article.title) {
+                return ''; // Skip invalid articles
+            }
+
+            const borderColor = type === 'positive' ? 'border-green-500' : type === 'neutral' ? 'border-blue-500' : 'border-red-500';
+            const bgColor = type === 'positive' ? 'bg-green-900/20' : type === 'neutral' ? 'bg-blue-900/20' : 'bg-red-900/20';
+            
+            // Handle missing or invalid values
+            const sentiment_score = typeof article.sentiment_score === 'number' ? article.sentiment_score.toFixed(2) : 'N/A';
+            const bias_level = typeof article.bias_level === 'number' ? article.bias_level : 0;
+            const manipulative_score = typeof article.manipulative_score === 'number' ? article.manipulative_score : 0;
+            
+            return `
+                <div class="news-card rounded-lg p-6 border-l-4 ${borderColor} ${bgColor}">
+                    <h3 class="text-lg font-semibold mb-2 text-shadow">
+                        <a href="${article.url || '#'}" target="_blank" class="hover:text-blue-400 transition-colors">
+                            ${article.title}
+                        </a>
+                    </h3>
+                    <div class="mb-4">
+                        <p class="text-sm opacity-90 text-shadow">${article.summary || 'No summary available'}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm font-semibold mb-1 text-shadow">Sentiment Score: ${sentiment_score}</p>
+                            <p class="text-sm opacity-75 text-shadow">${article.positive || 'No mood analysis'} ${article.mood_emojis || ''}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold mb-1 text-shadow">Bias Analysis</p>
+                            <p class="text-sm opacity-75 text-shadow">${article.negative || 'No bias detected'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm font-semibold mb-1 text-shadow">Bias Level (${bias_level}/10)</p>
+                            ${getBiasLevel(bias_level)}
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold mb-1 text-shadow">Manipulative Score (${manipulative_score}/10)</p>
+                            ${getManipulativeLevel(manipulative_score)}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-sm opacity-75 text-shadow">
+                        <span class="mr-4">
+                            <i class="far fa-newspaper mr-1 icon-shadow"></i>${article.source || 'Unknown Source'}
+                        </span>
+                        <span>
+                            <i class="far fa-clock mr-1 icon-shadow"></i>${article.timestamp ? formatDate(article.timestamp) : 'No date'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function goBack() {
+            document.getElementById('news-container').classList.add('hidden');
+            document.getElementById('categories-grid').classList.remove('hidden');
+        }
+
+        // Remove the old generateNews function since we're using loadCategory now
+        function generateNews() {
+            loadCategory('breaking');
+        }
+    </script>
+</body>
+</html>

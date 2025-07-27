@@ -1,0 +1,29 @@
+apiVersion: 0.1.0
+meta:
+  version: 0.3.8
+  name: news-rss
+  type: http-source
+  topic: news-feed
+http:
+  endpoints:
+    - url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
+      category: "breaking"
+    - url: "https://feeds.bbci.co.uk/news/technology/rss.xml"
+      category: "technology"
+    - url: "https://feeds.bbci.co.uk/news/business/rss.xml"
+      category: "business"
+    - url: "https://www.sciencedaily.com/rss/top/science.xml"
+      category: "science"
+    - url: "https://www.medicalnewstoday.com/rss/featurednews.xml"
+      category: "health"
+  interval: 5m
+transforms:
+  - uses: infinyon/jolt@0.4.1
+    with:
+      spec:
+        - operation: shift
+          spec:
+            title: "title"
+            description: "content"
+            link: "url"
+            category: "category" 

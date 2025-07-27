@@ -1,0 +1,4 @@
+# Netlify redirects file
+/api/*  /.netlify/functions/api/:splat  200
+/news/*  /.netlify/functions/news/:splat  200
+/*  /index.html  200

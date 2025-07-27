@@ -1,0 +1,18 @@
+[build]
+  command = "npm install"
+  publish = "public"
+
+[dev]
+  command = "npm start"
+  port = 8080
+  publish = "public"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# Netlify Functions for backend API
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
